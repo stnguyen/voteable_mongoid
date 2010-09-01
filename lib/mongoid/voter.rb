@@ -2,11 +2,60 @@ module Mongoid
   module Voter
     extend ActiveSupport::Concern
 
-    included do
-    end
-  
+
     def votees(klass)
       klass.any_of({ :up_voter_ids => _id }, { :down_voter_ids => _id })
+    end
+
+
+    def voted?(options)
+      unless options.is_a?(Hash)
+        votee_class = options.class
+        votee_id = options._id
+      else
+        votee = options[:votee]
+        if votee
+          votee_class = votee.class
+          votee_id = votee.id
+        else
+          votee_class = options[:votee_type].constantize
+          votee_id = options[:votee_id]
+        end
+      end
+      
+      votees(votee_class).where(:_id => votee_id).count == 1
+    end
+
+
+    def vote_value(options)
+      votee = unless options.is_a?(Hash)
+        options
+      else
+        options[:votee_type].constantize.only(:up_vote_ids, :down_vote_ids).where(
+          :_id => options[:votee_id]
+        ).first
+      end
+      votee.vote_value(_id)
+    end
+    
+  
+    def vote(options)
+      votee = options[:votee]
+
+      if votee
+        options[:votee_id] = votee.id
+        votee_class = votee.class
+      else
+        votee_class = options[:votee_type].constantize
+      end
+      
+      unless options.has_key?(:revote)
+        options[:revote] = voted?(options)
+      end
+      
+      options[:voter_id] = _id
+
+      votee_class.vote(options)
     end
   end
 end

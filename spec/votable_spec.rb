@@ -67,7 +67,7 @@ describe Mongoid::Votable do
     end
     
     it 'user1 vote post1 has no effect' do
-      Post.vote(:revote => true, :votee_id => @post1.id, :voter_id => @user1.id, :value => :up)
+      Post.vote(:revote => false, :votee_id => @post1.id, :voter_id => @user1.id, :value => :up)
       @post1.reload
       
       @post1.votes_count.should == 1

@@ -74,8 +74,8 @@ module Mongoid
     end
   
     def vote_value(voter_id)
-      return :up if up_voter_ids.include?(voter_id)
-      return :down if down_voter_ids.include?(voter_id)
+      return :up if up_voter_ids.try(:include?, voter_id)
+      return :down if down_voter_ids.try(:include?, voter_id)
     end
 
   end
