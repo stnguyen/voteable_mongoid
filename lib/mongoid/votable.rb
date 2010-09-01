@@ -9,8 +9,6 @@ module Mongoid
       field :votes_count, :type => Integer, :default => 0
       field :votes_point, :type => Integer, :default => 0
     
-      index :up_voter_ids
-      index :down_voter_ids
       index :votes_count
       index :votes_point
 
