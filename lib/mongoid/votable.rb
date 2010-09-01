@@ -19,6 +19,9 @@ module Mongoid
         voter_id = options[:voter_id]
         value = options[:value]
         
+        votee_id = BSON::ObjectID(votee_id) if votee_id.is_a?(String)
+        voter_id = BSON::ObjectID(voter_id) if voter_id.is_a?(String)
+        
         if value == :up
           push_field = :up_voter_ids
           pull_field = :down_voter_ids
@@ -43,6 +46,9 @@ module Mongoid
         votee_id = options[:votee_id]
         voter_id = options[:voter_id]
         value = options[:value]      
+        
+        votee_id = BSON::ObjectID(votee_id) if votee_id.is_a?(String)
+        voter_id = BSON::ObjectID(voter_id) if voter_id.is_a?(String)
         
         if value == :up
           push_field = :up_voter_ids

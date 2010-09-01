@@ -1,4 +1,3 @@
-* Auto convert _id from String to BSON::ObjectID
 * Add user can only up vote or down vote on one votable object validation if :validate => true
 * Input options hash validations
 * Add rake task to update {votes, votes_point}_count

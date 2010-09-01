@@ -108,7 +108,7 @@ describe Mongoid::Votable do
   
   context 'user1 change vote on post2 from down to up' do
     before :all do
-      Post.update_vote(:votee_id => @post2.id, :voter_id => @user1.id, :value => :up)
+      Post.update_vote(:votee_id => @post2.id.to_s, :voter_id => @user1.id.to_s, :value => :up)
       @post2.reload
     end
     
