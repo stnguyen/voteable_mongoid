@@ -33,11 +33,25 @@ describe Mongoid::Votable do
       @user1.votees(Post).should be_empty
       @user2.votees(Post).should be_empty
     end
+    
+    it 'revote has no effect' do
+      Post.vote(:revote => true, :votee_id => @post1.id, :voter_id => @user1.id, :value => :up)
+      @post1.reload
+
+      @post1.votes_count.should == 0
+      @post1.votes_point.should == 0
+      
+      Post.vote(:revote => true, :votee_id => @post2.id, :voter_id => @user2.id, :value => :down)
+      @post2.reload
+      
+      @post2.votes_count.should == 0
+      @post2.votes_point.should == 0
+    end
   end
   
   context 'user1 vote up post1 the first time' do
     before :all do    
-      Post.new_vote(:votee_id => @post1.id, :voter_id => @user1.id, :value => :up)
+      Post.vote(:votee_id => @post1.id, :voter_id => @user1.id, :value => :up)
       @post1.reload
     end
     
@@ -48,14 +62,24 @@ describe Mongoid::Votable do
       @post1.vote_value(@user1.id).should == :up
       @post1.vote_value(@user2.id).should be_nil
 
-      @user1.votees(Post).should == [ @post1 ]
-      @user2.votees(Post).should be_empty
+      @user1.votees(Post).to_a.should == [ @post1 ]
+      @user2.votees(Post).to_a.should be_empty
+    end
+    
+    it 'user1 vote post1 has no effect' do
+      Post.vote(:revote => true, :votee_id => @post1.id, :voter_id => @user1.id, :value => :up)
+      @post1.reload
+      
+      @post1.votes_count.should == 1
+      @post1.votes_point.should == 1
+      
+      @post1.vote_value(@user1.id).should == :up
     end
   end
   
   context 'user2 vote down post1 the first time' do
     before :all do
-      Post.new_vote(:votee_id => @post1.id, :voter_id => @user2.id, :value => :down)
+      Post.vote(:votee_id => @post1.id, :voter_id => @user2.id, :value => :down)
       @post1.reload
     end
     
@@ -66,14 +90,14 @@ describe Mongoid::Votable do
       @post1.vote_value(@user1.id).should == :up
       @post1.vote_value(@user2.id).should == :down
 
-      @user1.votees(Post).should == [ @post1 ]
-      @user2.votees(Post).should == [ @post1 ]
+      @user1.votees(Post).to_a.should == [ @post1 ]
+      @user2.votees(Post).to_a.should == [ @post1 ]
     end
   end
   
   context 'user1 change vote on post1 from up to down' do
     before :all do
-      Post.update_vote(:votee_id => @post1.id, :voter_id => @user1.id, :value => :down)
+      Post.vote(:revote => true, :votee_id => @post1.id, :voter_id => @user1.id, :value => :down)
       @post1.reload
     end
     
@@ -84,14 +108,14 @@ describe Mongoid::Votable do
       @post1.vote_value(@user1.id).should == :down
       @post1.vote_value(@user2.id).should == :down
 
-      @user1.votees(Post).should == [ @post1 ]
-      @user2.votees(Post).should == [ @post1 ]
+      @user1.votees(Post).to_a.should == [ @post1 ]
+      @user2.votees(Post).to_a.should == [ @post1 ]
     end
   end
   
   context 'user1 vote down post2 the first time' do
     before :all do
-      Post.new_vote(:votee_id => @post2.id, :voter_id => @user1.id, :value => :down)
+      Post.vote(:votee_id => @post2.id, :voter_id => @user1.id, :value => :down)
       @post2.reload
     end
     
@@ -102,13 +126,13 @@ describe Mongoid::Votable do
       @post2.vote_value(@user1.id).should == :down
       @post2.vote_value(@user2.id).should be_nil
 
-      @user1.votees(Post).should == [ @post1, @post2 ]
+      @user1.votees(Post).to_a.should == [ @post1, @post2 ]
     end
   end
   
   context 'user1 change vote on post2 from down to up' do
     before :all do
-      Post.update_vote(:votee_id => @post2.id.to_s, :voter_id => @user1.id.to_s, :value => :up)
+      Post.vote(:revote => true, :votee_id => @post2.id.to_s, :voter_id => @user1.id.to_s, :value => :up)
       @post2.reload
     end
     
@@ -119,7 +143,7 @@ describe Mongoid::Votable do
       @post2.vote_value(@user1.id).should == :up
       @post2.vote_value(@user2.id).should be_nil
 
-      @user1.votees(Post).should == [ @post1, @post2 ]
+      @user1.votees(Post).to_a.should == [ @post1, @post2 ]
     end
   end
 end
