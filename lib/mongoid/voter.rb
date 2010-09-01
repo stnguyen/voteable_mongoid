@@ -39,8 +39,13 @@ module Mongoid
     end
     
   
-    def vote(options)
-      votee = options[:votee]
+    def vote(options, vote_value = nil)
+      if options.is_a?(Hash) 
+        votee = options[:votee]
+      else
+        votee = options
+        options = { :votee => votee, :value => vote_value }
+      end
 
       if votee
         options[:votee_id] = votee.id
