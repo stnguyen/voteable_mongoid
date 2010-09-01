@@ -45,6 +45,9 @@ describe Mongoid::Votable do
       @post1.votes_count.should == 1
       @post1.votes_point.should == 1
 
+      @post1.vote_value(@user1.id).should == :up
+      @post1.vote_value(@user2.id).should be_nil
+
       @user1.votees(Post).should == [ @post1 ]
       @user2.votees(Post).should be_empty
     end
@@ -60,6 +63,9 @@ describe Mongoid::Votable do
       @post1.votes_count.should == 2
       @post1.votes_point.should == 0
       
+      @post1.vote_value(@user1.id).should == :up
+      @post1.vote_value(@user2.id).should == :down
+
       @user1.votees(Post).should == [ @post1 ]
       @user2.votees(Post).should == [ @post1 ]
     end
@@ -74,6 +80,9 @@ describe Mongoid::Votable do
     it '' do
       @post1.votes_count.should == 2
       @post1.votes_point.should == -2
+
+      @post1.vote_value(@user1.id).should == :down
+      @post1.vote_value(@user2.id).should == :down
 
       @user1.votees(Post).should == [ @post1 ]
       @user2.votees(Post).should == [ @post1 ]
@@ -90,6 +99,9 @@ describe Mongoid::Votable do
       @post2.votes_count.should == 1
       @post2.votes_point.should == -1
       
+      @post2.vote_value(@user1.id).should == :down
+      @post2.vote_value(@user2.id).should be_nil
+
       @user1.votees(Post).should == [ @post1, @post2 ]
     end
   end
@@ -104,6 +116,9 @@ describe Mongoid::Votable do
       @post2.votes_count.should == 1
       @post2.votes_point.should == 1
       
+      @post2.vote_value(@user1.id).should == :up
+      @post2.vote_value(@user2.id).should be_nil
+
       @user1.votees(Post).should == [ @post1, @post2 ]
     end
   end
