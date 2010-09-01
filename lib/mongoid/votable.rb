@@ -14,8 +14,12 @@ module Mongoid
       index :votes_count
       index :votes_point
 
-      def self.update_vote(_id, voter_id, up)
-        if up
+      def self.update_vote(options)
+        votee_id = options[:votee_id]
+        voter_id = options[:voter_id]
+        value = options[:value]
+        
+        if value == :up
           push_field = :up_voter_ids
           pull_field = :down_voter_ids
           point_delta = +2
@@ -25,7 +29,7 @@ module Mongoid
           point_delta = -2
         end
 
-        collection.update({ :_id => _id }, {
+        collection.update({ :_id => votee_id }, {
           '$pull' => { pull_field => voter_id },
           '$push' => { push_field => voter_id },
           '$inc' => {
@@ -35,8 +39,12 @@ module Mongoid
       end
     
 
-      def self.new_vote(_id, voter_id, up)
-        if up
+      def self.new_vote(options)
+        votee_id = options[:votee_id]
+        voter_id = options[:voter_id]
+        value = options[:value]      
+        
+        if value == :up
           push_field = :up_voter_ids
           point_delta = +1
         else
@@ -44,7 +52,7 @@ module Mongoid
           point_delta = -1
         end
 
-        collection.update({ :_id => _id }, {
+        collection.update({ :_id => votee_id }, {
           '$push' => { push_field => voter_id },
           '$inc' => {
             :votes_count => +1,

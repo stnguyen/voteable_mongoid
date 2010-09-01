@@ -37,7 +37,7 @@ describe Mongoid::Votable do
   
   context 'user1 vote up post1 the first time' do
     before :all do    
-      Post.new_vote(@post1.id, @user1.id, true)
+      Post.new_vote(:votee_id => @post1.id, :voter_id => @user1.id, :value => :up)
       @post1.reload
     end
     
@@ -55,7 +55,7 @@ describe Mongoid::Votable do
   
   context 'user2 vote down post1 the first time' do
     before :all do
-      Post.new_vote(@post1.id, @user2.id, false)
+      Post.new_vote(:votee_id => @post1.id, :voter_id => @user2.id, :value => :down)
       @post1.reload
     end
     
@@ -73,7 +73,7 @@ describe Mongoid::Votable do
   
   context 'user1 change vote on post1 from up to down' do
     before :all do
-      Post.update_vote(@post1.id, @user1.id, false)
+      Post.update_vote(:votee_id => @post1.id, :voter_id => @user1.id, :value => :down)
       @post1.reload
     end
     
@@ -91,7 +91,7 @@ describe Mongoid::Votable do
   
   context 'user1 vote down post2 the first time' do
     before :all do
-      Post.new_vote(@post2.id, @user1.id, false)
+      Post.new_vote(:votee_id => @post2.id, :voter_id => @user1.id, :value => :down)
       @post2.reload
     end
     
@@ -108,7 +108,7 @@ describe Mongoid::Votable do
   
   context 'user1 change vote on post2 from down to up' do
     before :all do
-      Post.update_vote(@post2.id, @user1.id, true)
+      Post.update_vote(:votee_id => @post2.id, :voter_id => @user1.id, :value => :up)
       @post2.reload
     end
     
