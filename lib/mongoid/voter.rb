@@ -57,8 +57,7 @@ module Mongoid
       options[:revote] = if options.has_key?(:revote)
         !options[:revote].blank?
       else
-        options.has_key?(:new) ? 
-          options[:new].blank? : voted?(options)
+        options.has_key?(:new) ? options[:new].blank? : voted?(options)
       end
       
       options[:voter_id] = _id
