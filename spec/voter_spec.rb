@@ -40,7 +40,7 @@ describe Mongoid::Voter do
   
   context 'user1 vote up post1 the first time' do
     before :all do    
-      @user1.vote(:votee_id => @post1.id, :votee_type => 'Post', :value => :up)
+      @user1.vote(:revote => '', :votee_id => @post1.id, :votee_type => 'Post', :value => :up)
       @post1.reload
     end
     
@@ -107,7 +107,7 @@ describe Mongoid::Voter do
   
   context 'user1 vote down post2 the first time' do
     before :all do
-      @user1.vote(:votee => @post2, :value => :down)
+      @user1.vote(:new => 'abc', :votee => @post2, :value => :down)
       @post2.reload
     end
     
@@ -124,7 +124,7 @@ describe Mongoid::Voter do
   
   context 'user1 change vote on post2 from down to up' do
     before :all do
-      @user1.vote(@post2, :up)
+      @user1.vote(:new => '', :votee => @post2, :value => :up)
       @post2.reload
     end
     

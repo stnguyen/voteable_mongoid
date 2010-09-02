@@ -54,8 +54,10 @@ module Mongoid
         votee_class = options[:votee_type].constantize
       end
       
-      unless options.has_key?(:revote)
-        options[:revote] = options.has_key?(:new) ? 
+      options[:revote] = if options.has_key?(:revote)
+        !options[:revote].blank?
+      else
+        options.has_key?(:new) ? 
           options[:new].blank? : voted?(options)
       end
       
