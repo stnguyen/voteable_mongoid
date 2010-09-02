@@ -26,6 +26,8 @@ module Mongoid
         votee_id = BSON::ObjectID(votee_id) if votee_id.is_a?(String)
         voter_id = BSON::ObjectID(voter_id) if voter_id.is_a?(String)
         
+        puts options.inspect
+
         if options[:revote]
           if value == :up
             push_field = :up_voter_ids

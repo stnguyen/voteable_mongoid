@@ -124,7 +124,7 @@ describe Mongoid::Voter do
   
   context 'user1 change vote on post2 from down to up' do
     before :all do
-      @user1.vote(:new => '', :votee => @post2, :value => :up)
+      @user1.vote(:revote => 'abc', :votee => @post2, :value => :up)
       @post2.reload
     end
     
