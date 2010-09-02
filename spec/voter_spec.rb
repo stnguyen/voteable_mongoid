@@ -24,7 +24,7 @@ describe Mongoid::Voter do
     end
     
     it 'revote has no effect' do
-      @user1.vote(:revote => true, :votee_id => @post1.id, :votee_type => 'Post', :value => :up)
+      @user1.vote(:new => '', :votee_id => @post1.id, :votee_type => 'Post', :value => :up)
       @post1.reload
 
       @post1.votes_count.should == 0
