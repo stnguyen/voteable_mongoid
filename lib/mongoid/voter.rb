@@ -40,6 +40,8 @@ module Mongoid
     
   
     def vote(options, vote_value = nil)
+      options.symbolize_keys!
+
       if options.is_a?(Hash) 
         votee = options[:votee]
       else
