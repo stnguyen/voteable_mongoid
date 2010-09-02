@@ -73,7 +73,16 @@ module Mongoid
       end
     end
   
-    def vote_value(voter_id)
+    def vote_value(x)
+      voter_id = case x
+      when String
+        BSON::ObjectID(x)
+      when BSON::ObjectID
+        x
+      else
+        x.id
+      end
+
       return :up if up_voter_ids.try(:include?, voter_id)
       return :down if down_voter_ids.try(:include?, voter_id)
     end
