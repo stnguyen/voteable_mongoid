@@ -12,13 +12,13 @@ $LOAD_PATH.unshift(MODELS)
 
 require 'ruby-debug'
 require 'mongoid'
-require 'votable_mongoid'
+require 'voteable_mongoid'
 require 'rspec'
 require 'rspec/autorun'
 
 
 Mongoid.configure do |config|
-  name = "votable_mongoid_test"
+  name = "voteable_mongoid_test"
   host = "localhost"
   config.master = Mongo::Connection.new.db(name)
 end

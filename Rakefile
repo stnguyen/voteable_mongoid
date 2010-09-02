@@ -7,11 +7,11 @@ require "rspec/core/rake_task"
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name        = "votable_mongoid"
+    gem.name        = "voteable_mongoid"
     gem.summary     = %Q{Add Up / Down Voting for Mongoid}
     gem.description = %Q{Add Up / Down Voting for Mongoid}
     gem.email       = "alex@vinova.sg"
-    gem.homepage    = "http://github.com/vinova/votable_mongoid"
+    gem.homepage    = "http://github.com/vinova/voteable_mongoid"
     gem.authors     = ["Alex Nguyen"]
     gem.files       = Dir.glob("lib/**/*")
     gem.test_files  = []

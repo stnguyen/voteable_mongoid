@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe Mongoid::Votable do
+describe Mongoid::Voteable do
   before :all do
     User.delete_all
     Post.delete_all
@@ -13,7 +13,7 @@ describe Mongoid::Votable do
   end
   
   context "just created" do
-    it 'votable votes_count, votes_point should be zero' do
+    it 'voteable votes_count, votes_point should be zero' do
       @post1.votes_count.should == 0
       @post1.votes_point.should == 0
 
@@ -21,7 +21,7 @@ describe Mongoid::Votable do
       @post2.votes_point.should == 0
     end
     
-    it 'votable up_voter_ids, down_voter_ids should be empty' do
+    it 'voteable up_voter_ids, down_voter_ids should be empty' do
       @post1.up_voter_ids.should be_empty
       @post1.down_voter_ids.should be_empty
 

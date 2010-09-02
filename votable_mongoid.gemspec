@@ -4,7 +4,7 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{votable_mongoid}
+  s.name = %q{voteable_mongoid}
   s.version = "0.2.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
@@ -16,11 +16,11 @@ Gem::Specification.new do |s|
     "TODO"
   ]
   s.files = [
-    "lib/mongoid/votable.rb",
+    "lib/mongoid/voteable.rb",
      "lib/mongoid/voter.rb",
-     "lib/votable_mongoid.rb"
+     "lib/voteable_mongoid.rb"
   ]
-  s.homepage = %q{http://github.com/vinova/votable_mongoid}
+  s.homepage = %q{http://github.com/vinova/voteable_mongoid}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.7}

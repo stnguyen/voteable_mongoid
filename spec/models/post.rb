@@ -1,4 +1,4 @@
 class Post
   include Mongoid::Document
-  include Mongoid::Votable
+  include Mongoid::Voteable
 end
