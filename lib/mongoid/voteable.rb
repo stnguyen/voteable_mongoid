@@ -29,7 +29,7 @@ module Mongoid
         voter_id = BSON::ObjectID(voter_id) if voter_id.is_a?(String)
 
         if options[:revote]
-          if value == :up
+          if value.to_sym == :up
             push_field = :up_voter_ids
             pull_field = :down_voter_ids
             point_delta = +2
