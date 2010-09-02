@@ -50,7 +50,7 @@ module Mongoid
           })
 
         else # new vote
-          if value == :up
+          if value.to_sym == :up
             push_field = :up_voter_ids
             point_delta = +1
           else
