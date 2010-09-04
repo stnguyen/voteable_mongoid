@@ -19,7 +19,7 @@ module Mongoid
       scope :best_voted, order_by(:votes_point.desc)
       
       
-      def self.vote_point(klass, options = nil)
+      def self.vote_point(klass = self, options = nil)
         VOTE_POINT[self] ||= {}
         VOTE_POINT[self][klass] ||= options
       end
