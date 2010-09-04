@@ -112,8 +112,8 @@ module Mongoid
         options[foreign_key] = read_attribute(foreign_key)
       end
       
-      options[:votee_id] = _id
-      options[:revote] = !vote_value(options[:voter_id]).nil?
+      options[:votee_id] ||= _id
+      options[:revote] ||= !vote_value(options[:voter_id]).nil?
 
       self.class.vote(options)
     end
