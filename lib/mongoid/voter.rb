@@ -18,7 +18,7 @@ module Mongoid
           votee_class = votee.class
           votee_id = votee.id
         else
-          votee_class = options[:votee_type].constantize
+          votee_class = options[:votee_type].classify.constantize
           votee_id = options[:votee_id]
         end
       end
@@ -31,7 +31,7 @@ module Mongoid
       votee = unless options.is_a?(Hash)
         options
       else
-        options[:votee_type].constantize.only(:up_vote_ids, :down_vote_ids).where(
+        options[:votee_type].classify.constantize.only(:up_vote_ids, :down_vote_ids).where(
           :_id => options[:votee_id]
         ).first
       end
@@ -53,7 +53,7 @@ module Mongoid
         options[:votee_id] = votee.id
         votee_class = votee.class
       else
-        votee_class = options[:votee_type].constantize
+        votee_class = options[:votee_type].classify.constantize
       end
       
       options[:revote] = if options.has_key?(:revote)
