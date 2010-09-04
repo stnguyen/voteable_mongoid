@@ -2,9 +2,8 @@ require "spec_helper"
 
 describe Mongoid::Voter do
   before :all do
-    User.delete_all
-    Post.delete_all
-    
+    Mongoid::database.connection.drop_database(Mongoid::database.name)
+
     @post1 = Post.create!
     @post2 = Post.create!
 

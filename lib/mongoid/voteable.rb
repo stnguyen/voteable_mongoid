@@ -20,8 +20,8 @@ module Mongoid
       
       
       def self.vote_point(klass = self, options = nil)
-        VOTE_POINT[self] ||= {}
-        VOTE_POINT[self][klass] ||= options
+        VOTE_POINT[self.name] ||= {}
+        VOTE_POINT[self.name][klass.name] ||= options
       end
             
 
@@ -46,11 +46,11 @@ module Mongoid
           if value == :up
             push_field = :up_voter_ids
             pull_field = :down_voter_ids
-            point_delta = VOTE_POINT[self][self][:up] - VOTE_POINT[self][self][:down]
+            point_delta = VOTE_POINT[name][name][:up] - VOTE_POINT[name][name][:down]
           else
             push_field = :down_voter_ids
             pull_field = :up_voter_ids
-            point_delta = -VOTE_POINT[self][self][:up] + VOTE_POINT[self][self][:down]
+            point_delta = -VOTE_POINT[name][name][:up] + VOTE_POINT[name][name][:down]
           end
           
           collection.update({ 
@@ -80,17 +80,17 @@ module Mongoid
             '$push' => { push_field => voter_id },
             '$inc' => {
               :votes_count => +1,
-              :votes_point => VOTE_POINT[self][self][value]
+              :votes_point => VOTE_POINT[name][name][value]
             }
           })
         end
         
-        VOTE_POINT[self].each do |klass, value_point|
-          next unless association = associations[klass.name.underscore]
+        VOTE_POINT[name].each do |class_name, value_point|
+          next unless association = associations[class_name.underscore]
           next unless foreign_key = options[association.options[:foreign_key].to_sym]
           foreign_key = BSON::ObjectID(foreign_key) if foreign_key.is_a?(String)
 
-          klass.collection.update({ :_id => foreign_key }, {
+          class_name.constantize.collection.update({ :_id => foreign_key }, {
             '$inc' => options[:revote] ? {
               :votes_point => ( value == :up ? 
                  value_point[:up] - value_point[:down] : 
@@ -106,8 +106,8 @@ module Mongoid
   
 
     def vote(options)
-      VOTE_POINT[self.class].each do |klass, value_point|
-        next unless association = self.class.associations[klass.name.underscore]
+      VOTE_POINT[self.class.name].each do |class_name, value_point|
+        next unless association = self.class.associations[class_name.underscore]
         next unless foreign_key = association.options[:foreign_key]
         options[foreign_key] = read_attribute(foreign_key)
       end
