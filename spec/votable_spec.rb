@@ -166,7 +166,7 @@ describe Mongoid::Voteable do
   
   context 'user1 revote post2 comment from up to down' do
     before :all do
-      @comment.vote(:voter_id => @user1.id, :value => :down)
+      @user1.vote(:votee => @comment, :value => :down)
       @comment.reload
       @post2.reload
     end
