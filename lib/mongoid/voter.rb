@@ -64,7 +64,7 @@ module Mongoid
       
       options[:voter_id] = _id
 
-      votee_class.vote(options)
+      ( votee || votee_class ).vote(options)
     end
   end
 end

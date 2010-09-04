@@ -2,11 +2,10 @@ require "spec_helper"
 
 describe Mongoid::Voteable do
   before :all do
-    User.delete_all
-    Post.delete_all
-    
     @post1 = Post.create!
     @post2 = Post.create!
+    
+    @comment = @post2.comments.create!
 
     @user1 = User.create!
     @user2 = User.create!
@@ -144,6 +143,40 @@ describe Mongoid::Voteable do
       @post2.vote_value(@user2.id).should be_nil
 
       @user1.votees(Post).to_a.should == [ @post1, @post2 ]
+    end
+  end
+  
+
+  context 'user1 vote up post2 comment the first time' do
+    before :all do
+      @comment.vote(:voter_id => @user1.id, :value => :up)
+      @comment.reload
+      @post2.reload
+    end
+    
+    it '' do
+      @post2.votes_count.should == 2
+      @post2.votes_point.should == 3
+      
+      @comment.votes_count.should == 1
+      @comment.votes_point.should == 1
+    end
+  end
+  
+  
+  context 'user1 revote post2 comment from up to down' do
+    before :all do
+      @comment.vote(:voter_id => @user1.id, :value => :down)
+      @comment.reload
+      @post2.reload
+    end
+    
+    it '' do
+      @post2.votes_count.should == 2
+      @post2.votes_point.should == 0
+      
+      @comment.votes_count.should == 1
+      @comment.votes_point.should == -3
     end
   end
 end
