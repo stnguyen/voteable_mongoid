@@ -41,16 +41,17 @@ module Mongoid
         voter_id = BSON::ObjectID(voter_id) if voter_id.is_a?(String)
 
         value = value.to_sym
+        value_point = VOTE_POINT[name][name]
         
         if options[:revote]
           if value == :up
             push_field = :up_voter_ids
             pull_field = :down_voter_ids
-            point_delta = VOTE_POINT[name][name][:up] - VOTE_POINT[name][name][:down]
+            point_delta = value_point[:up] - value_point[:down]
           else
             push_field = :down_voter_ids
             pull_field = :up_voter_ids
-            point_delta = -VOTE_POINT[name][name][:up] + VOTE_POINT[name][name][:down]
+            point_delta = -value_point[:up] + value_point[:down]
           end
           
           collection.update({ 
@@ -80,7 +81,7 @@ module Mongoid
             '$push' => { push_field => voter_id },
             '$inc' => {
               :votes_count => +1,
-              :votes_point => VOTE_POINT[name][name][value]
+              :votes_point => value_point[value]
             }
           })
         end
@@ -96,7 +97,7 @@ module Mongoid
                  value_point[:up] - value_point[:down] : 
                 -value_point[:up] + value_point[:down] )
             } : {
-              :votes_count => 1,
+              :votes_count => value_point[:not_increase_votes_count] ? 0 : 1,
               :votes_point => value_point[value]
             }
           })
@@ -118,7 +119,7 @@ module Mongoid
       self.class.vote(options)
     end
 
-    
+
     def vote_value(x)
       voter_id = case x
       when String
@@ -133,5 +134,15 @@ module Mongoid
       return :down if down_voter_ids.try(:include?, voter_id)
     end
 
+
+    def up_votes_count
+      up_voter_ids.length
+    end
+    
+
+    def down_votes_count
+      down_voter_ids.length
+    end
+    
   end
 end
