@@ -17,9 +17,8 @@ begin
     gem.test_files  = []
     gem.add_dependency 'mongoid', '~> 2.0.0.beta'
 
-    gem.add_development_dependency 'ruby-debug'
     gem.add_development_dependency 'bson_ext'
-    gem.add_development_dependency 'rspec', '~> 2.0.0.beta.20'
+    gem.add_development_dependency 'rspec', '~> 2.0.0.rc'
   end
   Jeweler::GemcutterTasks.new
 

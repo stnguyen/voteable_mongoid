@@ -10,7 +10,6 @@ MODELS = File.join(File.dirname(__FILE__), "models")
 $LOAD_PATH.unshift(MODELS)
 
 
-require 'ruby-debug'
 require 'mongoid'
 require 'voteable_mongoid'
 require 'rspec'

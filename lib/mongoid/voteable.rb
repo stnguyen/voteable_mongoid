@@ -37,8 +37,8 @@ module Mongoid
         voter_id = options[:voter_id]
         value = options[:value]
         
-        votee_id = BSON::ObjectID(votee_id) if votee_id.is_a?(String)
-        voter_id = BSON::ObjectID(voter_id) if voter_id.is_a?(String)
+        votee_id = BSON::ObjectId(votee_id) if votee_id.is_a?(String)
+        voter_id = BSON::ObjectId(voter_id) if voter_id.is_a?(String)
 
         value = value.to_sym
         value_point = VOTE_POINT[name][name]
@@ -89,7 +89,7 @@ module Mongoid
         VOTE_POINT[name].each do |class_name, value_point|
           next unless association = associations[class_name.underscore]
           next unless foreign_key = options[association.options[:foreign_key].to_sym]
-          foreign_key = BSON::ObjectID(foreign_key) if foreign_key.is_a?(String)
+          foreign_key = BSON::ObjectId(foreign_key) if foreign_key.is_a?(String)
 
           class_name.constantize.collection.update({ :_id => foreign_key }, {
             '$inc' => options[:revote] ? {
@@ -123,8 +123,8 @@ module Mongoid
     def vote_value(x)
       voter_id = case x
       when String
-        BSON::ObjectID(x)
-      when BSON::ObjectID
+        BSON::ObjectId(x)
+      when BSON::ObjectId
         x
       else
         x.id
