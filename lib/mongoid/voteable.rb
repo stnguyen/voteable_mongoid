@@ -41,7 +41,7 @@ module Mongoid
         voter_id = BSON::ObjectId(voter_id) if voter_id.is_a?(String)
 
         value = value.to_sym
-        value_point = VOTE_POINT[name][name]
+        value_point = VOTE_POINT[self.name][self.name]
         
         if options[:revote]
           if value == :up
@@ -86,12 +86,12 @@ module Mongoid
           })
         end
         
-        VOTE_POINT[name].each do |class_name, value_point|
-          next unless association = associations[class_name.underscore]
-          next unless foreign_key = options[association.options[:foreign_key].to_sym]
-          foreign_key = BSON::ObjectId(foreign_key) if foreign_key.is_a?(String)
-
-          class_name.constantize.collection.update({ :_id => foreign_key }, {
+        VOTE_POINT[self.name].each do |class_name, value_point|
+          next unless relation_metadata = relations[class_name.underscore]
+          next unless foreign_key_value = options[relation_metadata.foreign_key.to_sym]
+          foreign_key_value = BSON::ObjectId(foreign_key_value) if foreign_key_value.is_a?(String)
+          
+          class_name.constantize.collection.update({ :_id => foreign_key_value }, {
             '$inc' => options[:revote] ? {
               :votes_point => ( value == :up ? 
                  value_point[:up] - value_point[:down] : 
@@ -108,9 +108,9 @@ module Mongoid
 
     def vote(options)
       VOTE_POINT[self.class.name].each do |class_name, value_point|
-        next unless association = self.class.associations[class_name.underscore]
-        next unless foreign_key = association.options[:foreign_key]
-        options[foreign_key] = read_attribute(foreign_key)
+        next unless relation_metadata = relations[class_name.underscore]
+        next unless foreign_key = relation_metadata.foreign_key
+        options[foreign_key.to_sym] = read_attribute(foreign_key)
       end
       
       options[:votee_id] ||= _id

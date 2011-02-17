@@ -15,10 +15,10 @@ begin
     gem.authors     = ["Alex Nguyen"]
     gem.files       = Dir.glob("lib/**/*")
     gem.test_files  = []
-    gem.add_dependency 'mongoid', '~> 2.0.0.beta'
+    gem.add_dependency 'mongoid', '~> 2.0.0.rc'
 
     gem.add_development_dependency 'bson_ext'
-    gem.add_development_dependency 'rspec', '~> 2.0.0.rc'
+    gem.add_development_dependency 'rspec'
   end
   Jeweler::GemcutterTasks.new
 
