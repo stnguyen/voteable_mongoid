@@ -23,6 +23,7 @@ describe Mongoid::Voter do
     end
     
     it 'revote has no effect' do
+      # Voter#vote(:new => '') has the same effect as Voter#vote(:revote => true)
       @user1.vote(:new => '', :votee_id => @post1.id, :votee_type => 'Post', :value => :up)
       @post1.reload
 
