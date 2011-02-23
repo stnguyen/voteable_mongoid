@@ -2,6 +2,8 @@ module Mongoid
   module Voteable
     extend ActiveSupport::Concern
 
+    # How many points should be assigned for each up or down vote.
+    # This array should be manipulated using Votable.vote_point method
     VOTE_POINT = {}
 
     included do
@@ -18,7 +20,7 @@ module Mongoid
       scope :most_voted, order_by(:votes_count.desc)
       scope :best_voted, order_by(:votes_point.desc)
       
-      
+      # Set vote point for each up (down) vote on an object of this class
       def self.vote_point(klass = self, options = nil)
         VOTE_POINT[self.name] ||= {}
         VOTE_POINT[self.name][klass.name] ||= options
@@ -29,6 +31,13 @@ module Mongoid
       # from voting value, we can decide it should be new vote or revote with :up or :down
       # In this case, validation can be skip to maximize performance
 
+      # Make a vote on an object of this class
+      #
+      # @param [Hash] options a hash containings:
+      #   - :votee_id: the votee document id
+      #   - :voter_id: the voter document id
+      #   - :value: :up or :down
+      #   - :revote: change from vote up to vote down
       def self.vote(options)
         options.symbolize_keys!
         
@@ -102,7 +111,13 @@ module Mongoid
           })
         end
       end
-      
+
+      # Cancel a vote on an object of this class
+      #
+      # @param [Hash] options a hash containings:
+      #   - :votee_id: the votee document id
+      #   - :voter_id: the voter document id
+      #   - :value: voted :up or :down
       def self.unvote(options)
         options.symbolize_keys!
                 
@@ -146,7 +161,11 @@ module Mongoid
       end
     end
   
-
+    # Make a vote on this votee
+    #
+    # @param [Hash] options a hash containings:
+    #   - :voter_id: the voter document id
+    #   - :value: vote :up or vote :down
     def vote(options)
       VOTE_POINT[self.class.name].each do |class_name, value_point|
         next unless relation_metadata = relations[class_name.underscore]
@@ -159,8 +178,12 @@ module Mongoid
 
       self.class.vote(options)
     end
-    
-    def unvote(options)  
+
+    # Cancel a vote on this votee
+    #
+    # @param [Hash] options a hash containings:
+    #   - :voter_id: the voter document id
+    def unvote(options)
       VOTE_POINT[self.class.name].each do |class_name, value_point|
         next unless relation_metadata = relations[class_name.underscore]
         next unless foreign_key = relation_metadata.foreign_key
@@ -172,6 +195,9 @@ module Mongoid
       self.class.unvote(options)
     end
 
+    # Get a voted value on this votee
+    #
+    # @param [String, BSON::ObjectId] x the id of the voter who made the vote
     def vote_value(x)
       voter_id = case x
       when String
@@ -186,15 +212,14 @@ module Mongoid
       return :down if down_voter_ids.try(:include?, voter_id)
     end
 
-
+    # Get the number of up votes
     def up_votes_count
       up_voter_ids.length
     end
     
-
+    # Get the number of down votes
     def down_votes_count
       down_voter_ids.length
     end
-    
   end
 end

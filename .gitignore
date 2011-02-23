@@ -23,3 +23,9 @@ rdoc
 pkg
 
 ## PROJECT::SPECIFIC
+
+# RUBYMINE
+.idea/
+
+# YARD
+.yardoc/
