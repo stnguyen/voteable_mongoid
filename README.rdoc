@@ -1,0 +1,85 @@
+= Votable Mongoid
+
+Votable Mongoid allows you to make your Mongoid::Document objects votable (up or down)
+
+For instance, in a q&a site, a user can vote up (or down) on a post or a comment.
+
+== Installation
+
+=== Rails 3.0.x
+
+To install the gem, add this to your Gemfile
+
+  gem 'votable_mongoid'
+
+After that, remember to run "bundle install"
+
+== Usage
+
+=== Making Post and Comment votable, User being the voter
+
+post.rb
+
+    class Post
+      include Mongoid::Document
+      include Mongoid::Voteable
+
+      # set points for each vote
+      vote_point self, :up => +1, :down => -1
+
+      references_many :comments
+    end
+
+comment.rb
+
+    require 'post'
+
+    class Comment
+      include Mongoid::Document
+      include Mongoid::Voteable
+
+      referenced_in :post
+
+      vote_point self, :up => +1, :down => -3
+
+      # each vote on a comment can affect votes count and point of the related post as well
+      vote_point Post, :up => +2, :down => -1
+    end
+
+user.rb
+
+    class User
+      include Mongoid::Document
+      include Mongoid::Voter
+    end
+
+=== Making a vote
+
+    @user.vote(@post, :up)
+    # is equivalent to
+    @post.vote(:voter_id => @user.id, :value => :up)
+
+    # this will affect @post.votes_count and @post.votes_point as well
+    @user.vote(@comment, :down)
+
+=== Getting votes count and points
+
+    puts @post.votes_point
+    puts @post.votes_count
+    puts @post.up_votes_count
+    puts @post.down_votes_count
+
+=== Getting the list of voted objects (votees) of a class
+
+    @user.votees(Post)
+
+=== Undo a vote
+
+    @user.unvote(@comment)
+
+== Contributors
+
+* Alex N. - Author, Maintainer
+* Stefan N. - Unvoting
+
+Copyright (c) 2010-2011 Alex Nguyen (http://alex.vinova.sg) and Vinova Pre Ltd (http://vinova.sg)
