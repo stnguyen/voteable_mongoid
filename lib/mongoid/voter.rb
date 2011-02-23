@@ -25,7 +25,10 @@ module Mongoid
       
       votees(votee_class).where(:_id => votee_id).count == 1
     end
-
+    
+    def unvote(votee)
+      votee.unvote(:voter_id => _id)
+    end
 
     def vote_value(options)
       votee = unless options.is_a?(Hash)

@@ -181,4 +181,37 @@ describe Mongoid::Voteable do
       @comment.votes_point.should == -3
     end
   end
+  
+  context "user1 unvote on post1" do
+    before(:all) do
+      Post.unvote(:voter_id => @user1.id, :votee_id => @post1.id, :value => :down)
+      @post1.reload
+    end
+    
+    it "" do
+      @post1.votes_count.should == 1
+      @post1.votes_point.should == -1
+      
+      @post1.vote_value(@user1.id).should be_nil
+      @post1.vote_value(@user2.id).should == :down
+      
+      @user1.votees(Post).to_a.should_not include(@post1)
+    end
+  end
+  
+  context "user1 unvote on comment" do
+    before(:all) do
+      @user1.unvote(@comment)
+      @comment.reload
+      @post2.reload
+    end
+    
+    it "" do
+      @post2.votes_count.should == 1
+      @post2.votes_point.should == 1
+      
+      @comment.votes_count.should == 0
+      @comment.votes_point.should == 0
+    end
+  end
 end

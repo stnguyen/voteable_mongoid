@@ -22,8 +22,7 @@ module Mongoid
       def self.vote_point(klass = self, options = nil)
         VOTE_POINT[self.name] ||= {}
         VOTE_POINT[self.name][klass.name] ||= options
-      end
-            
+      end          
 
       # We usually need to show current_user his voting value on voteable object
       # voting value can be nil (not voted yet), :up or :down
@@ -103,6 +102,48 @@ module Mongoid
           })
         end
       end
+      
+      def self.unvote(options)
+        options.symbolize_keys!
+                
+        voter_id = options[:voter_id]
+        voter_id = BSON::ObjectId(voter_id) if voter_id.is_a?(String)
+        votee_id = options[:votee_id]
+        votee_id = BSON::ObjectId(votee_id) if votee_id.is_a?(String)
+        value = options[:value].to_sym
+        return unless value  # not voted yet!
+        
+        value_point = VOTE_POINT[self.name][self.name]
+        
+        pull_field = if value == :up
+            :up_voter_ids
+        else
+            :down_voter_ids
+        end
+        
+        collection.update({ 
+          :_id => votee_id,
+        }, {
+          '$pull' => { pull_field => voter_id },
+          '$inc' => {
+            :votes_count => -1,
+            :votes_point => -value_point[value]
+          }
+        })
+        
+        VOTE_POINT[self.name].each do |class_name, value_point|
+          next unless relation_metadata = relations[class_name.underscore]
+          next unless foreign_key_value = options[relation_metadata.foreign_key.to_sym]
+          foreign_key_value = BSON::ObjectId(foreign_key_value) if foreign_key_value.is_a?(String)
+          
+          class_name.constantize.collection.update({ :_id => foreign_key_value }, {
+            '$inc' => {
+              :votes_count => value_point[:not_increase_votes_count] ? 0 : -1,
+              :votes_point => -value_point[value]
+            }
+          })
+        end
+      end
     end
   
 
@@ -118,7 +159,18 @@ module Mongoid
 
       self.class.vote(options)
     end
-
+    
+    def unvote(options)  
+      VOTE_POINT[self.class.name].each do |class_name, value_point|
+        next unless relation_metadata = relations[class_name.underscore]
+        next unless foreign_key = relation_metadata.foreign_key
+        options[foreign_key.to_sym] = read_attribute(foreign_key)
+      end
+      
+      options[:votee_id] ||= _id
+      options[:value] = vote_value(options[:voter_id])
+      self.class.unvote(options)
+    end
 
     def vote_value(x)
       voter_id = case x
