@@ -83,4 +83,5 @@ user.rb
 * Stefan N. - Unvoting
 
 Copyright (c) 2010-2011 Vinova Pte Ltd (http://vinova.sg)
+
 Licensed under the MIT license.
