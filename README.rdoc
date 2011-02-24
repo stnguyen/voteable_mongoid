@@ -77,9 +77,10 @@ user.rb
 
     @user.unvote(@comment)
 
-== Contributors
+== Credits
 
-* Alex N. - Author, Maintainer
+* Alex N. - Author
 * Stefan N. - Unvoting
 
-Copyright (c) 2010-2011 Alex Nguyen (http://alex.vinova.sg) and Vinova Pre Ltd (http://vinova.sg)
+Copyright (c) 2010-2011 Vinova Pte Ltd (http://vinova.sg)
+Licensed under the MIT license.
