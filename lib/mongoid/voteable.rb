@@ -49,7 +49,9 @@ module Mongoid
         voter_id = BSON::ObjectId(voter_id) if voter_id.is_a?(String)
 
         value = value.to_sym
-        value_point = VOTE_POINT[self.name][self.name]
+	klass = options[:class]
+	klass ||= VOTE_POINT.keys.include?(name) ? name : collection.name.classify
+        value_point = VOTE_POINT[klass][klass]
         
         if options[:revote]
           if value == :up
@@ -94,7 +96,7 @@ module Mongoid
           })
         end
         
-        VOTE_POINT[self.name].each do |class_name, value_point|
+        VOTE_POINT[klass].each do |class_name, value_point|
           next unless relation_metadata = relations[class_name.underscore]
           next unless foreign_key_value = options[relation_metadata.foreign_key.to_sym]
           foreign_key_value = BSON::ObjectId(foreign_key_value) if foreign_key_value.is_a?(String)
@@ -145,8 +147,8 @@ module Mongoid
             :votes_point => -value_point[value]
           }
         })
-        
-        VOTE_POINT[self.name].each do |class_name, value_point|
+        klass = VOTE_POINT.keys.include?(self.class.name) ? self.class.name : self.collection.name.classify
+        VOTE_POINT[klass].each do |class_name, value_point|
           next unless relation_metadata = relations[class_name.underscore]
           next unless foreign_key_value = options[relation_metadata.foreign_key.to_sym]
           foreign_key_value = BSON::ObjectId(foreign_key_value) if foreign_key_value.is_a?(String)
@@ -167,7 +169,8 @@ module Mongoid
     #   - :voter_id: the voter document id
     #   - :value: vote :up or vote :down
     def vote(options)
-      VOTE_POINT[self.class.name].each do |class_name, value_point|
+      klass = VOTE_POINT.keys.include?(self.class.name) ? self.class.name : self.collection.name.classify
+      VOTE_POINT[klass].each do |class_name, value_point|
         next unless relation_metadata = relations[class_name.underscore]
         next unless foreign_key = relation_metadata.foreign_key
         options[foreign_key.to_sym] = read_attribute(foreign_key)
