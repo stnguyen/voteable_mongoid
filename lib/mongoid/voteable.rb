@@ -3,7 +3,7 @@ module Mongoid
     extend ActiveSupport::Concern
 
     # How many points should be assigned for each up or down vote.
-    # This array should be manipulated using Votable.vote_point method
+    # This array should be manipulated using Voteable.vote_point method
     VOTE_POINT = {}
 
     included do

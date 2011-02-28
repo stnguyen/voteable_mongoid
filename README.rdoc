@@ -1,6 +1,6 @@
-= Votable Mongoid
+= Voteable Mongoid
 
-Votable Mongoid allows you to make your Mongoid::Document objects votable (up or down)
+Voteable Mongoid allows you to make your Mongoid::Document objects voteable (up or down)
 
 For instance, in a q&a site, a user can vote up (or down) on a post or a comment.
 
@@ -10,13 +10,13 @@ For instance, in a q&a site, a user can vote up (or down) on a post or a comment
 
 To install the gem, add this to your Gemfile
 
-  gem 'votable_mongoid'
+  gem 'voteable_mongoid'
 
 After that, remember to run "bundle install"
 
 == Usage
 
-=== Making Post and Comment votable, User being the voter
+=== Making Post and Comment voteable, User being the voter
 
 post.rb
 

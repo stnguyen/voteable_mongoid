@@ -5,7 +5,7 @@ module Mongoid
     # Get list of voted votees
     #
     # @param [Class] klass the votee class, e.g. `Post` or `Comment`
-    # @return [Array, nil] an array of votable objects voted by this voter
+    # @return [Array, nil] an array of voteable objects voted by this voter
     def votees(klass)
       klass.any_of({ :up_voter_ids => _id }, { :down_voter_ids => _id })
     end
