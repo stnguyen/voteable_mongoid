@@ -214,12 +214,12 @@ module Mongoid
 
     # Get the number of up votes
     def up_votes_count
-      up_voter_ids.length
+      (up_voter_ids||[]).length
     end
     
     # Get the number of down votes
     def down_votes_count
-      down_voter_ids.length
+      (down_voter_ids||[]).length
     end
   end
 end
