@@ -118,8 +118,8 @@ module Mongoid
         
         VOTE_POINT[klass].each do |class_name, value_point|
           next unless relation_metadata = relations[class_name.underscore]
-          next unless foreign_key_value = options[relation_metadata.foreign_key.to_sym]
-          foreign_key_value = BSON::ObjectId(foreign_key_value) if foreign_key_value.is_a?(String)
+          votee ||= options[:votee] || find(options[:votee_id])
+          next unless foreign_key_value = votee.read_attribute(relation_metadata.foreign_key.to_sym)
           
           inc_options = if options[:revote]
             {
@@ -153,12 +153,8 @@ module Mongoid
     #   - :voter_id: the voter document id
     #   - :value: vote :up or vote :down
     def vote(options)
-      klass = VOTE_POINT.keys.include?(self.class.name) ? self.class.name : self.collection.name.classify
-      VOTE_POINT[klass].each do |class_name, value_point|
-        next unless relation_metadata = relations[class_name.underscore]
-      end
-      
       options[:votee_id] ||= _id
+      options[:votee] ||= self
 
       if options[:value].nil?
         options[:unvote] = true
