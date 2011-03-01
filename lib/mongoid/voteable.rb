@@ -65,10 +65,12 @@ module Mongoid
           end
           
           update_result = collection.update({ 
+            # Validate voter_id did a vote with value for votee_id
             :_id => votee_id,
             positive_field => { '$ne' => voter_id },
             negative_field => voter_id
           }, {
+            # then update
             '$pull' => { negative_field => voter_id },
             '$push' => { positive_field => voter_id },
             '$inc' => {
@@ -87,11 +89,14 @@ module Mongoid
             negative_field = :down_voter_ids
           end
           
+          # Check if voter_id did a vote with value for votee_id
           update_result = collection.update({ 
+            # Validate voter_id did a vote with value for votee_id
             :_id => votee_id,
             negative_field => { '$ne' => voter_id },
             positive_field => voter_id
           }, {
+            # then update
             '$pull' => { positive_field => voter_id },
             '$inc' => {
               :votes_count => -1,
@@ -109,10 +114,12 @@ module Mongoid
           end
 
           update_result = collection.update({ 
+            # Validate voter_id did not vote for votee_id yet
             :_id => votee_id,
             :up_voter_ids => { '$ne' => voter_id },
             :down_voter_ids => { '$ne' => voter_id },
           }, {
+            # then update
             '$push' => { positive_field => voter_id },
             '$inc' => {
               :votes_count => +1,
@@ -130,10 +137,13 @@ module Mongoid
 
         if successed
           VOTE_POINT[klass].each do |class_name, value_point|
+            # For other class in VOTE_POINT options, if is parent of current class
             next unless relation_metadata = relations[class_name.underscore]
             votee ||= options[:votee] || find(options[:votee_id])
+            # If can find current votee foreign_key value for that class
             next unless foreign_key_value = votee.read_attribute(relation_metadata.foreign_key.to_sym)
           
+            # Update that class / collection
             inc_options = if options[:revote]
               {
                 :votes_point => ( value == :up ? 
