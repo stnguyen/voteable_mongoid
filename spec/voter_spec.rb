@@ -22,14 +22,7 @@ describe Mongoid::Voter do
       @user2.voted?(@post2).should be_false
     end
     
-    it 'revote has no effect' do
-      # Voter#vote(:new => '') has the same effect as Voter#vote(:revote => true)
-      @user1.vote(:new => '', :votee_id => @post1.id, :votee_type => 'Post', :value => :up)
-      @post1.reload
-
-      @post1.votes_count.should == 0
-      @post1.votes_point.should == 0
-      
+    it 'revote has no effect' do      
       @user2.vote(:revote => true, :votee => @post2, :value => :down)
       @post2.reload
       
