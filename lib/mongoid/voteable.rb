@@ -40,17 +40,16 @@ module Mongoid
       #   - :revote: change from vote up to vote down
       def self.vote(options)
         options.symbolize_keys!
+        value = options[:value].to_sym
         
         votee_id = options[:votee_id]
         voter_id = options[:voter_id]
-        value = options[:value]
         
         votee_id = BSON::ObjectId(votee_id) if votee_id.is_a?(String)
         voter_id = BSON::ObjectId(voter_id) if voter_id.is_a?(String)
 
-        value = value.to_sym
-	klass = options[:class]
-	klass ||= VOTE_POINT.keys.include?(name) ? name : collection.name.classify
+        klass = options[:class]
+        klass ||= VOTE_POINT.keys.include?(name) ? name : collection.name.classify
         value_point = VOTE_POINT[klass][klass]
         
         if options[:revote]
