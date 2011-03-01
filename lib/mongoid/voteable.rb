@@ -38,6 +38,7 @@ module Mongoid
       #   - :voter_id: the voter document id
       #   - :value: :up or :down
       #   - :revote: change from vote up to vote down
+      #   - :unvote: unvote the vote value (:up or :down)
       def self.vote(options)
         options.symbolize_keys!
         value = options[:value].to_sym
@@ -63,7 +64,7 @@ module Mongoid
             point_delta = -value_point[:up] + value_point[:down]
           end
           
-          collection.update({ 
+          update_result = collection.update({ 
             :_id => votee_id,
             positive_field => { '$ne' => voter_id },
             negative_field => voter_id
@@ -73,6 +74,8 @@ module Mongoid
             '$inc' => {
               :votes_point => point_delta
             }
+          }, {
+            :safe => true
           })
 
         elsif options[:unvote]
@@ -84,7 +87,7 @@ module Mongoid
             negative_field = :down_voter_ids
           end
           
-          collection.update({ 
+          update_result = collection.update({ 
             :_id => votee_id,
             negative_field => { '$ne' => voter_id },
             positive_field => voter_id
@@ -94,6 +97,8 @@ module Mongoid
               :votes_count => -1,
               :votes_point => -value_point[value]
             }
+          }, {
+            :safe => true
           })
           
         else # new vote
@@ -103,7 +108,7 @@ module Mongoid
             positive_field = :down_voter_ids
           end
 
-          collection.update({ 
+          update_result = collection.update({ 
             :_id => votee_id,
             :up_voter_ids => { '$ne' => voter_id },
             :down_voter_ids => { '$ne' => voter_id },
@@ -113,38 +118,50 @@ module Mongoid
               :votes_count => +1,
               :votes_point => value_point[value]
             }
+          }, {
+            :safe => true
           })
         end
         
-        VOTE_POINT[klass].each do |class_name, value_point|
-          next unless relation_metadata = relations[class_name.underscore]
-          votee ||= options[:votee] || find(options[:votee_id])
-          next unless foreign_key_value = votee.read_attribute(relation_metadata.foreign_key.to_sym)
+        # Only update parent class if votee is updated successfully
+        successed = ( update_result['err'] == nil and 
+          update_result['updatedExisting'] == true and
+          update_result['n'] == 1 )
+
+        if successed
+          VOTE_POINT[klass].each do |class_name, value_point|
+            next unless relation_metadata = relations[class_name.underscore]
+            votee ||= options[:votee] || find(options[:votee_id])
+            next unless foreign_key_value = votee.read_attribute(relation_metadata.foreign_key.to_sym)
           
-          inc_options = if options[:revote]
-            {
-              :votes_point => ( value == :up ? 
-                 value_point[:up] - value_point[:down] : 
-                -value_point[:up] + value_point[:down] )
-            }
-          elsif options[:unvote]
-            {
-              :votes_count => value_point[:not_increase_votes_count] ? 0 : -1,
-              :votes_point => -value_point[value]
-            }
-          else
-            {
-              :votes_count => value_point[:not_increase_votes_count] ? 0 : 1,
-              :votes_point => value_point[value]
-            }
-          end
+            inc_options = if options[:revote]
+              {
+                :votes_point => ( value == :up ? 
+                   value_point[:up] - value_point[:down] : 
+                  -value_point[:up] + value_point[:down] )
+              }
+            elsif options[:unvote]
+              {
+                :votes_count => value_point[:not_increase_votes_count] ? 0 : -1,
+                :votes_point => -value_point[value]
+              }
+            else
+              {
+                :votes_count => value_point[:not_increase_votes_count] ? 0 : 1,
+                :votes_point => value_point[value]
+              }
+            end
                     
-          class_name.constantize.collection.update(
-            { :_id => foreign_key_value }, 
-            { '$inc' =>  inc_options }
-          )
+            class_name.constantize.collection.update(
+              { :_id => foreign_key_value }, 
+              { '$inc' =>  inc_options }
+            )
+          end
         end
+        
+        successed
       end
+      
     end
   
     # Make a vote on this votee

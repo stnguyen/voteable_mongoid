@@ -180,6 +180,16 @@ describe Mongoid::Voteable do
       @comment.votes_count.should == 1
       @comment.votes_point.should == -3
     end
+    
+    it 'revote with wrong value has no effect' do
+      @user1.vote(:votee => @comment, :value => :down)
+      
+      @post2.votes_count.should == 2
+      @post2.votes_point.should == 0
+      
+      @comment.votes_count.should == 1
+      @comment.votes_point.should == -3
+    end
   end
   
   context "user1 unvote on post1" do
