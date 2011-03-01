@@ -156,9 +156,8 @@ module Mongoid
       options[:votee_id] ||= _id
       options[:votee] ||= self
 
-      if options[:value].nil?
-        options[:unvote] = true
-        options[:value] = vote_value(options[:voter_id])
+      if options[:unvote]
+        options[:value] ||= vote_value(options[:voter_id])
       else
         options[:revote] ||= !vote_value(options[:voter_id]).nil?
       end

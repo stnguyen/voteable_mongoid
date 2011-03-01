@@ -184,7 +184,7 @@ describe Mongoid::Voteable do
   
   context "user1 unvote on post1" do
     before(:all) do
-      @post1.vote(:voter_id => @user1.id, :votee_id => @post1.id, :value => nil)
+      @post1.vote(:voter_id => @user1.id, :votee_id => @post1.id, :unvote => true)
       @post1.reload
     end
     

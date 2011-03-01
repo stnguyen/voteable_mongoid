@@ -40,7 +40,7 @@ module Mongoid
       votee = unless options.is_a?(Hash)
         options
       else
-        options[:votee_type].classify.constantize.only(:up_vote_ids, :down_vote_ids).where(
+        options[:votee] || options[:votee_type].classify.constantize.only(:up_vote_ids, :down_vote_ids).where(
           :_id => options[:votee_id]
         ).first
       end
@@ -50,8 +50,13 @@ module Mongoid
     # Cancel the vote on a votee
     #
     # @param [Object] votee the votee to be unvoted
-    def unvote(votee)
-      vote(votee, nil)
+    def unvote(options)
+      unless options.is_a?(Hash)
+        options = { :votee => options }
+      end
+      options[:unvote] = true
+      options[:revote] = false
+      vote(options)
     end
 
     # Vote on a votee
@@ -73,7 +78,10 @@ module Mongoid
         votee_class = options[:votee_type].classify.constantize
       end
       
-      unless options[:value].nil?
+      if options[:value].nil?
+        options[:unvote] = true
+        options[:value] = vote_value(options)
+      else
         options[:revote] = options.has_key?(:revote) ? !options[:revote].blank? : voted?(options)
       end
       
