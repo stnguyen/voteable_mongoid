@@ -200,17 +200,9 @@ module Mongoid
 
     # Get a voted value on this votee
     #
-    # @param [String, BSON::ObjectId] x the id of the voter who made the vote
-    def vote_value(x)
-      voter_id = case x
-      when String
-        BSON::ObjectId(x)
-      when BSON::ObjectId
-        x
-      else
-        x.id
-      end
-
+    # @param [Mongoid Object, BSON::ObjectId] voter is Mongoid object the id of the voter who made the vote
+    def vote_value(voter)
+      voter_id = voter.is_a?(BSON::ObjectId) ? voter : voter.id
       return :up if up_voter_ids.try(:include?, voter_id)
       return :down if down_voter_ids.try(:include?, voter_id)
     end
