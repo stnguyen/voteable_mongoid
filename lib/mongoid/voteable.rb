@@ -7,18 +7,11 @@ module Mongoid
     VOTE_POINT = {}
 
     included do
-      field :up_voter_ids, :type => Array, :default => []
-      field :down_voter_ids, :type => Array, :default => []
-    
-      field :votes_count, :type => Integer, :default => 0
-      field :votes_point, :type => Integer, :default => 0
-
-    
-      index :votes_count
-      index :votes_point
-      
-      scope :most_voted, order_by(:votes_count.desc)
-      scope :best_voted, order_by(:votes_point.desc)
+      # index :votes_count
+      # index :votes_point
+      #     
+      #     scope :most_voted, order_by(:votes_count.desc)
+      #     scope :best_voted, order_by(:votes_point.desc)
       
       # Set vote point for each up (down) vote on an object of this class
       def self.vote_point(klass = self, options = nil)
@@ -67,14 +60,14 @@ module Mongoid
           update_result = collection.update({ 
             # Validate voter_id did a vote with value for votee_id
             :_id => votee_id,
-            positive_field => { '$ne' => voter_id },
-            negative_field => voter_id
+            "voteable.#{positive_field.to_s}" => { '$ne' => voter_id },
+            "voteable.#{negative_field.to_s}" => voter_id
           }, {
             # then update
-            '$pull' => { negative_field => voter_id },
-            '$push' => { positive_field => voter_id },
+            '$pull' => { "voteable.#{negative_field.to_s}" => voter_id },
+            '$push' => { "voteable.#{positive_field.to_s}" => voter_id },
             '$inc' => {
-              :votes_point => point_delta
+              "voteable.votes_point" => point_delta
             }
           }, {
             :safe => true
@@ -93,14 +86,14 @@ module Mongoid
           update_result = collection.update({ 
             # Validate voter_id did a vote with value for votee_id
             :_id => votee_id,
-            negative_field => { '$ne' => voter_id },
-            positive_field => voter_id
+            "voteable.#{negative_field.to_s}" => { '$ne' => voter_id },
+            "voteable.#{positive_field.to_s}" => voter_id
           }, {
             # then update
-            '$pull' => { positive_field => voter_id },
+            '$pull' => { "voteable.#{positive_field.to_s}" => voter_id },
             '$inc' => {
-              :votes_count => -1,
-              :votes_point => -value_point[value]
+              "voteable.votes_count" => -1,
+              "voteable.votes_point" => -value_point[value]
             }
           }, {
             :safe => true
@@ -116,15 +109,14 @@ module Mongoid
           update_result = collection.update({ 
             # Validate voter_id did not vote for votee_id yet
             :_id => votee_id,
-            :up_voter_ids => { '$ne' => voter_id },
-            :down_voter_ids => { '$ne' => voter_id },
+            "voteable.up_voter_ids" => { '$ne' => voter_id },
+            "voteable.down_voter_ids" => { '$ne' => voter_id }
           }, {
             # then update
-            '$push' => { positive_field => voter_id },
-            '$inc' => {
-              :votes_count => +1,
-              :votes_point => value_point[value]
-            }
+            '$push' => { "voteable.#{positive_field.to_s}" => voter_id },
+            '$inc' => {  
+              "voteable.votes_count" => +1,
+              "voteable.votes_point" => value_point[value] }
           }, {
             :safe => true
           })
@@ -146,19 +138,19 @@ module Mongoid
             # Update that class / collection
             inc_options = if options[:revote]
               {
-                :votes_point => ( value == :up ? 
+                "voteable.votes_point" => ( value == :up ? 
                    value_point[:up] - value_point[:down] : 
                   -value_point[:up] + value_point[:down] )
               }
             elsif options[:unvote]
               {
-                :votes_count => value_point[:not_increase_votes_count] ? 0 : -1,
-                :votes_point => -value_point[value]
+                "voteable.votes_count" => value_point[:not_increase_votes_count] ? 0 : -1,
+                "voteable.votes_point" => -value_point[value]
               }
             else
               {
-                :votes_count => value_point[:not_increase_votes_count] ? 0 : 1,
-                :votes_point => value_point[value]
+                "voteable.votes_count" => value_point[:not_increase_votes_count] ? 0 : 1,
+                "voteable.votes_point" => value_point[value]
               }
             end
                     
@@ -209,6 +201,42 @@ module Mongoid
     # Get the number of down votes
     def down_votes_count
       (down_voter_ids||[]).length
+    end
+    
+    # Get the number of votes count
+    def votes_count
+      if self["voteable"]
+        self["voteable"]["votes_count"]
+      else 
+        0
+      end
+    end
+    
+    # Get the votes point
+    def votes_point
+      if self["voteable"]
+        self["voteable"]["votes_point"]
+      else 
+        0
+      end
+    end
+    
+    # Array of up voter ids
+    def up_voter_ids
+      if self["voteable"]
+        self["voteable"]["up_voter_ids"]
+      else 
+        []
+      end
+    end
+    
+    # Array of down voter ids
+    def down_voter_ids
+      if self["voteable"]
+        self["voteable"]["down_voter_ids"]
+      else 
+        []
+      end
     end
   end
 end
