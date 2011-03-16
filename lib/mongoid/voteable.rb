@@ -10,8 +10,8 @@ module Mongoid
       # index :votes_count
       # index :votes_point
       #     
-      #     scope :most_voted, order_by(:votes_count.desc)
-      #     scope :best_voted, order_by(:votes_point.desc)
+      scope :most_voted, order_by(["voteable.votes_count", :desc])
+      scope :best_voted, order_by(["voteable.votes_point", :desc])
       
       # Set vote point for each up (down) vote on an object of this class
       def self.vote_point(klass = self, options = nil)

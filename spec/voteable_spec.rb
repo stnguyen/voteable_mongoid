@@ -209,6 +209,13 @@ describe Mongoid::Voteable do
     end
   end
   
+  context "@post1 has 1 vote and -1 point, @post2 has 2 votes and 0 point" do
+    it "" do
+      Post.most_voted.first.should == @post2
+      Post.best_voted.first.should == @post2
+    end
+  end
+  
   context "user1 unvote on comment" do
     before(:all) do
       @user1.unvote(@comment)
