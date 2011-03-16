@@ -7,9 +7,9 @@ module Mongoid
     VOTE_POINT = {}
 
     included do
-      # index :votes_count
-      # index :votes_point
-      #     
+      index "voteable.votes_count"
+      index "voteable.votes_point"
+      
       scope :most_voted, order_by(["voteable.votes_count", :desc])
       scope :best_voted, order_by(["voteable.votes_point", :desc])
       
